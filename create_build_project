@@ -1,0 +1,63 @@
+#!/bin/bash
+component=''
+version=''
+while getopts 'c:v:' flag; do
+  case "${flag}" in
+  c) component="${OPTARG}";;
+  v) version="${OPTARG}";;
+  *) error "Unexpected option ${flag}" ;;
+esac
+done
+
+if [ -n "$version" ]
+then
+  if [ "$component" = author ] || [ "$component" = java ] || [ "$component" = publish ] || [ "$component" = dispatcher ] || [ "$component" = base ]
+  then
+    echo '{
+        "name": "codebuild_packer_'$component'",
+        "description": "Building aem AMIs with packer",
+        "source": {
+            "type": "GITHUB",
+            "location": "https://github.com/ibi456/packer-aem.git",
+            "buildspec": "",
+            "auth": {
+                "type": "OAUTH"
+            }
+        },
+        "tags": [],
+        "artifacts": {
+          "type": "NO_ARTIFACTS"
+        },
+        "cache": {
+            "type": "NO_CACHE"
+        },
+        "environment": {
+          "computeType": "BUILD_GENERAL1_SMALL",
+          "privilegedMode": true,
+          "image": "aws/codebuild/ruby:2.3.1",
+          "type": "LINUX_CONTAINER",
+          "environmentVariables": [
+            {
+              "name": "AEM_COMPONENT",
+              "value": "'$component'",
+              "type": "PLAINTEXT"
+            },
+            {
+              "name": "COMPONENT_VERSION",
+              "value": "'$version'",
+              "type": "PLAINTEXT"
+            }
+          ]
+        },
+        "encryptionKey": "arn:aws:kms:ap-southeast-2:918473058104:alias/aws/s3",
+        "serviceRole": "arn:aws:iam::918473058104:role/packer_codebuild_role",
+        "timeoutInMinutes": 120,
+        "badgeEnabled": true
+    }
+    ' > project_config.json
+  else
+    echo "Invalid component specified"
+  fi
+else
+  echo "version not specified"
+fi

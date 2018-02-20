@@ -1,0 +1,42 @@
+{
+        "name": "codebuild_packer_java",
+        "description": "Building aem AMIs with packer",
+        "source": {
+            "type": "GITHUB",
+            "location": "https://github.com/ibi456/packer-aem.git",
+            "buildspec": "",
+            "auth": {
+                "type": "OAUTH"
+            }
+        },
+        "tags": [],
+        "artifacts": {
+          "type": "NO_ARTIFACTS"
+        },
+        "cache": {
+            "type": "NO_CACHE"
+        },
+        "environment": {
+          "computeType": "BUILD_GENERAL1_SMALL",
+          "privilegedMode": true,
+          "image": "aws/codebuild/ruby:2.3.1",
+          "type": "LINUX_CONTAINER",
+          "environmentVariables": [
+            {
+              "name": "AEM_COMPONENT",
+              "value": "java",
+              "type": "PLAINTEXT"
+            },
+            {
+              "name": "COMPONENT_VERSION",
+              "value": "code_build",
+              "type": "PLAINTEXT"
+            }
+          ]
+        },
+        "encryptionKey": "arn:aws:kms:ap-southeast-2:918473058104:alias/aws/s3",
+        "serviceRole": "arn:aws:iam::918473058104:role/packer_codebuild_role",
+        "timeoutInMinutes": 120,
+        "badgeEnabled": true
+    }
+    
